@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpWPF_NP_Sockets_Task-1.Server", "CSharpWPF_NP_Sockets_Task-1.Server\CSharpWPF_NP_Sockets_Task-1.Server.csproj", "{7C3B9D3E-74B8-47A3-A019-B20C8126A1DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpWPF_NP_Sockets_Task_1.Client", "CSharpWPF_NP_Sockets_Task_1.Client\CSharpWPF_NP_Sockets_Task_1.Client.csproj", "{56F81AC8-7546-4390-86CF-E68055AAFC59}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C3B9D3E-74B8-47A3-A019-B20C8126A1DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C3B9D3E-74B8-47A3-A019-B20C8126A1DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C3B9D3E-74B8-47A3-A019-B20C8126A1DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C3B9D3E-74B8-47A3-A019-B20C8126A1DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56F81AC8-7546-4390-86CF-E68055AAFC59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56F81AC8-7546-4390-86CF-E68055AAFC59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56F81AC8-7546-4390-86CF-E68055AAFC59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56F81AC8-7546-4390-86CF-E68055AAFC59}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0FC19403-9E38-496F-A0EC-CA7008BF88EF}
+	EndGlobalSection
+EndGlobal
