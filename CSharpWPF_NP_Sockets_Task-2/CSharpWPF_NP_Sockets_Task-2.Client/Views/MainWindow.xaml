@@ -1,0 +1,57 @@
+﻿<Window x:Class="CSharpWPF_NP_Sockets_Task_2.Client.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CSharpWPF_NP_Sockets_Task_2.Client"
+        mc:Ignorable="d"
+        Title="Sockets HW Task 2 Client" Height="400" Width="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.6*"/>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Label Content="Client" FontSize="34"
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.5*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Label Content="Options" FontSize="26"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <ComboBox Grid.Row="1" Margin="55 15 55 70"
+                      FontSize="22" ItemsSource="{Binding RequestOptions}"
+                      SelectedItem="{Binding SelectedRequestOption}"/>
+                        
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Button Content="Make a request" FontSize="22"
+                        Command="{Binding RequestCommand}"/>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="1.2*"/>
+            </Grid.RowDefinitions>
+            <Label Content="Response:" FontSize="22"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBox IsReadOnly="True" Margin="10"
+                     Grid.Row="1" VerticalContentAlignment="Center"
+                     FontSize="22" Padding="15 0 0 0" Text="{Binding ServerResponse, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+    </Grid>
+</Window>
