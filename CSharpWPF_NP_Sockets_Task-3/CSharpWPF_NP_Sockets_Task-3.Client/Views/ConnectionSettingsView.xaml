@@ -1,0 +1,62 @@
+﻿<UserControl x:Class="CSharpWPF_NP_Sockets_Task_3.Client.Views.ConnectionSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CSharpWPF_NP_Sockets_Task_3.Client.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="600"
+             Background="White">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition/>
+            <RowDefinition Height="0.5*"/>
+        </Grid.RowDefinitions>
+        <Label Content="Choose the type of your messages" FontSize="25"
+       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Manual (User)" FontSize="22"
+            Margin="15" Command="{Binding ManualInputCommand}"/>
+            <Button Grid.Column="1"
+            Content="Auto (Program)" FontSize="22"
+            Margin="15" Command="{Binding AutoInputCommand}"/>
+        </Grid>
+        <Label Grid.Row="2" Content="Provide connection data"
+       VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+       FontSize="25"/>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.3*"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.7*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Label Content="Ip address" FontSize="22"
+           VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+           />
+            <TextBox Grid.Row="1" Margin="10 15" FontSize="22"
+             VerticalContentAlignment="Center" 
+             Padding="12 0 0 0" Text="{Binding IpAddress}"/>
+            <Label Grid.Column="1"
+           Content="Port" FontSize="22"
+           VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+           />
+            <TextBox Grid.Row="1" Grid.Column="1"  
+             Margin="12 15" FontSize="22"
+             VerticalContentAlignment="Center" 
+             Padding="10 0 0 0" Text="{Binding Port}"/>
+        </Grid>
+        <Button Content="Connect" Grid.Row="4"
+        Margin="10" FontSize="24" FontWeight="Bold"
+        Command="{Binding ConnectCommand}"/>
+    </Grid>
+</UserControl>
