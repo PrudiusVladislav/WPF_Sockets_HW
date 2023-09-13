@@ -24,18 +24,18 @@
                 <ColumnDefinition Width="1.8*"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <ListBox ItemsSource="{Binding ChatMessages}"/>
+            <ListBox ItemsSource="{Binding ChatMessages, UpdateSourceTrigger=PropertyChanged}"/>
             <Grid Grid.Column="1" Margin="10 0 0 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3*"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <TextBox FontSize="18" Text="{Binding EnteredMessage}"
-                     Padding="5" TextWrapping="Wrap"
-                     IsReadOnly="{Binding AutoResponsesMode}"/>
+                <TextBox FontSize="18" Text="{Binding EnteredMessage, UpdateSourceTrigger=PropertyChanged}"                        
+                         Padding="5" TextWrapping="Wrap"
+                         IsReadOnly="{Binding AutoResponsesMode}"/>
                 <Button Grid.Row="1" Margin="0 5"
                     Content="Send message" FontSize="22"
-                    Command="{Binding SendMessageCommand}"
+                    Command="{Binding SendMessageCommand, UpdateSourceTrigger=PropertyChanged}"
                     />
             </Grid>
         </Grid>

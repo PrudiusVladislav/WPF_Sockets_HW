@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace CSharpWPF_NP_Sockets_Task_3.Client.Core;
 
@@ -25,8 +26,15 @@ public class Client : IDisposable
 
     public void Connect()
     {
-        client = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-        client.Connect(endPoint);
+        try
+        {
+            client = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            client.Connect(endPoint);
+        }
+        catch(Exception ex)
+        {
+            MessageBox.Show(ex.Message);
+        }
     }
 
     private void OnMessageReceived(string message)
@@ -58,6 +66,18 @@ public class Client : IDisposable
         var receivedBytes = client!.Receive(buffer);
         var receivedMessage = Encoding.ASCII.GetString(buffer, 0, receivedBytes);
         OnMessageReceived(receivedMessage);       
+        return receivedMessage;
+    }
+
+    public async Task<string> ReceiveAsync()
+    {
+        if (client is null || !client.Connected)
+            Connect();
+
+        var buffer = new byte[1024];
+        var receivedBytes = await client!.ReceiveAsync(buffer);
+        var receivedMessage = Encoding.ASCII.GetString(buffer, 0, receivedBytes);
+        OnMessageReceived(receivedMessage);
         return receivedMessage;
     }
 

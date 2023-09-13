@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CSharpWPF_NP_Sockets_Task_3.Client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="600">
+        Title="Client" Height="450" Width="600">
     <Grid>
         <ContentControl Content="{Binding CurrentViewModel}"/>
     </Grid>

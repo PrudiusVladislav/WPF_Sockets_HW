@@ -45,7 +45,7 @@
            />
             <TextBox Grid.Row="1" Margin="10 15" FontSize="22"
              VerticalContentAlignment="Center" 
-             Padding="12 0 0 0" Text="{Binding IpAddress}"/>
+             Padding="12 0 0 0" Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Grid.Column="1"
            Content="Port" FontSize="22"
            VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
@@ -53,7 +53,7 @@
             <TextBox Grid.Row="1" Grid.Column="1"  
              Margin="12 15" FontSize="22"
              VerticalContentAlignment="Center" 
-             Padding="10 0 0 0" Text="{Binding Port}"/>
+             Padding="10 0 0 0" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
         <Button Content="Connect" Grid.Row="4"
         Margin="10" FontSize="24" FontWeight="Bold"

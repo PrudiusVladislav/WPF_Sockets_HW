@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace CSharpWPF_NP_Sockets_Task_3.Client.ViewModels;
@@ -15,8 +16,19 @@ public class ChatViewModel: ObservableObject
     private Core.Client client;
     public ObservableCollection<string> ChatMessages { get; set; }
     public bool AutoResponsesMode { get; set; }
-    public string? EnteredMessage { get; set; }
+    private bool isReceivingMessage { get; set; }
+    private string? enteredMessage;
+    public string? EnteredMessage 
+    {  
+        get => enteredMessage;
+        set
+        {
+            enteredMessage = value;
+            OnPropertyChanged();
+        }
+    }
     private string[] responsesArray;
+    private Random random;
     public ChatViewModel(bool autoInputType, string ipAddress, int port) 
     {
         AutoResponsesMode = autoInputType;
@@ -35,6 +47,7 @@ public class ChatViewModel: ObservableObject
             "Have a great day!",
             "Bye"
         };
+        random = new Random();
 
         client = new(ipAddress, port);
         client.MessageReceived += HandleMessageReceived;
@@ -44,22 +57,35 @@ public class ChatViewModel: ObservableObject
 
     private void HandleMessageReceived(string message)
     {
-        ChatMessages.Add($"Server: {message}");
-        if(message.Equals("Bye", StringComparison.OrdinalIgnoreCase))
+        isReceivingMessage = false;
+        Application.Current.Dispatcher.Invoke(() => {ChatMessages.Add($"Server: {message}"); });
+        if (message.Equals("Bye", StringComparison.OrdinalIgnoreCase))
+        {
+            isReceivingMessage = true;
             client.Disconnect();
+        }
+            
         if (AutoResponsesMode)
         {
-            client.Send(responsesArray[new Random().Next(responsesArray.Length)]);
+            client.Send(responsesArray[random.Next(responsesArray.Length)]);
         }
     }
-    private void HandleMessageSent(string message)
+    private async void HandleMessageSent(string message)
     {
-        ChatMessages.Add($"Me: {message}");
+        Application.Current.Dispatcher.Invoke(() => { ChatMessages.Add($"Me: {message}"); });
+        EnteredMessage = string.Empty;
+        isReceivingMessage = true;
+        if (message.Equals("Bye", StringComparison.OrdinalIgnoreCase))
+        {
+            client.Dispose();
+            return;
+        }
+        await client.ReceiveAsync();
     }
 
     private bool CanExecuteSendMessageCommand(object param)
     {
-        return !AutoResponsesMode && !string.IsNullOrWhiteSpace(EnteredMessage);
+        return !(AutoResponsesMode || string.IsNullOrWhiteSpace(EnteredMessage) || isReceivingMessage);
     }
     private ICommand? sendMessageCommand;
     public ICommand SendMessageCommand
@@ -68,15 +94,7 @@ public class ChatViewModel: ObservableObject
         {
             return sendMessageCommand ?? (sendMessageCommand = new RelayCommand((action) =>
             {
-                client.Send(EnteredMessage);
-                EnteredMessage = string.Empty;
-                if (EnteredMessage.Equals("Bye", StringComparison.OrdinalIgnoreCase))
-                {
-                    AutoResponsesMode = true;
-                    client.Disconnect();
-                    return;
-                }
-                client.Receive();           
+                client.Send(string.IsNullOrWhiteSpace(EnteredMessage) ? responsesArray[random.Next(responsesArray.Length)] : EnteredMessage);
             }, CanExecuteSendMessageCommand));
         }
     }
