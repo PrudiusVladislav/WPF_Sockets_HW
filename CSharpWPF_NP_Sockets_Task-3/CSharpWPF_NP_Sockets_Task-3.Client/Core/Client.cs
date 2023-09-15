@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Threading;
 
 namespace CSharpWPF_NP_Sockets_Task_3.Client.Core;
 
@@ -19,9 +20,14 @@ public class Client : IDisposable
 
     public event Action<string>? MessageReceived;
     public event Action<string>? MessageSent;
+    public event Action<string>? ErrorOccurred;
+
+    CancellationTokenSource cancellationTokenSource;
+
     public Client(string ipAddress = DefaultIpAddress, int port = DefaultPort)
     {
         endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
+        cancellationTokenSource = new CancellationTokenSource();
     }
 
     public void Connect()
@@ -33,7 +39,7 @@ public class Client : IDisposable
         }
         catch(Exception ex)
         {
-            MessageBox.Show(ex.Message);
+            OnErrorOccurred(ex.Message);
         }
     }
 
@@ -45,6 +51,11 @@ public class Client : IDisposable
     private void OnMessageSent(string message)
     {
         MessageSent?.Invoke(message);
+    }
+
+    private void OnErrorOccurred(string exceptionMessage)
+    {
+        ErrorOccurred?.Invoke(exceptionMessage);
     }
 
     public void Send(string message)
@@ -74,11 +85,15 @@ public class Client : IDisposable
         if (client is null || !client.Connected)
             Connect();
 
-        var buffer = new byte[1024];
-        var receivedBytes = await client!.ReceiveAsync(buffer);
-        var receivedMessage = Encoding.ASCII.GetString(buffer, 0, receivedBytes);
-        OnMessageReceived(receivedMessage);
-        return receivedMessage;
+        try
+        {
+            var buffer = new byte[1024];
+            var receivedBytes = await client!.ReceiveAsync(buffer, cancellationTokenSource.Token);
+            var receivedMessage = Encoding.ASCII.GetString(buffer, 0, receivedBytes);
+            OnMessageReceived(receivedMessage);
+            return receivedMessage;
+        }
+        catch(OperationCanceledException) { return ""; }
     }
 
     public string SendAndReceive(string message)
@@ -87,8 +102,14 @@ public class Client : IDisposable
         return Receive();
     }
 
+    public void CancelAsyncReceiving()
+    {
+        cancellationTokenSource.Cancel();
+    }
+
     public void Disconnect()
     {
+        CancelAsyncReceiving();
         client!.Shutdown(SocketShutdown.Both);
         client.Close();
         client = null;

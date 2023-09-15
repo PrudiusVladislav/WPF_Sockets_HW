@@ -16,7 +16,7 @@ public class ChatViewModel: ObservableObject
     private Core.Client client;
     public ObservableCollection<string> ChatMessages { get; set; }
     public bool AutoResponsesMode { get; set; }
-    private bool isReceivingMessage { get; set; }
+    private bool isDialogEnded { get; set; }
     private string? enteredMessage;
     public string? EnteredMessage 
     {  
@@ -52,40 +52,60 @@ public class ChatViewModel: ObservableObject
         client = new(ipAddress, port);
         client.MessageReceived += HandleMessageReceived;
         client.MessageSent += HandleMessageSent;
-        client.Connect();
+        client.ErrorOccurred += HandleErrorOccurred;
     }
 
-    private void HandleMessageReceived(string message)
+    public async Task ConnectClientAsync()
     {
-        isReceivingMessage = false;
+        client.Connect();
+        if(AutoResponsesMode)
+        {
+            var randomMessage = responsesArray[random.Next(responsesArray.Length)];          
+            client.Send(randomMessage);
+            if (!randomMessage.Equals("Bye", StringComparison.OrdinalIgnoreCase))
+                return;
+        }
+        await client.ReceiveAsync();
+    }
+
+    private async void HandleMessageReceived(string message)
+    {
         Application.Current.Dispatcher.Invoke(() => {ChatMessages.Add($"Server: {message}"); });
         if (message.Equals("Bye", StringComparison.OrdinalIgnoreCase))
         {
-            isReceivingMessage = true;
+            isDialogEnded = true;
             client.Disconnect();
+            return;
         }
             
         if (AutoResponsesMode)
         {
+            await Task.Delay(2000);
             client.Send(responsesArray[random.Next(responsesArray.Length)]);
         }
+        await client.ReceiveAsync();
     }
     private async void HandleMessageSent(string message)
     {
         Application.Current.Dispatcher.Invoke(() => { ChatMessages.Add($"Me: {message}"); });
         EnteredMessage = string.Empty;
-        isReceivingMessage = true;
         if (message.Equals("Bye", StringComparison.OrdinalIgnoreCase))
         {
-            client.Dispose();
+            isDialogEnded = true;
+            client.Disconnect();
             return;
         }
         await client.ReceiveAsync();
     }
 
+    private void HandleErrorOccurred(string exceptionMessage)
+    {
+        MessageBox.Show(exceptionMessage, "Error (Client)", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+
     private bool CanExecuteSendMessageCommand(object param)
     {
-        return !(AutoResponsesMode || string.IsNullOrWhiteSpace(EnteredMessage) || isReceivingMessage);
+        return !(AutoResponsesMode || string.IsNullOrWhiteSpace(EnteredMessage) || isDialogEnded);
     }
     private ICommand? sendMessageCommand;
     public ICommand SendMessageCommand
@@ -94,7 +114,9 @@ public class ChatViewModel: ObservableObject
         {
             return sendMessageCommand ?? (sendMessageCommand = new RelayCommand((action) =>
             {
-                client.Send(string.IsNullOrWhiteSpace(EnteredMessage) ? responsesArray[random.Next(responsesArray.Length)] : EnteredMessage);
+                if (EnteredMessage.Equals("Bye", StringComparison.OrdinalIgnoreCase))
+                    client.CancelAsyncReceiving();
+                client.Send(EnteredMessage!);
             }, CanExecuteSendMessageCommand));
         }
     }

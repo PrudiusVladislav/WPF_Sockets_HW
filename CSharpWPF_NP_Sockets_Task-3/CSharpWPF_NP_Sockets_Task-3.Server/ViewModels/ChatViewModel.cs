@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,7 +17,7 @@ public class ChatViewModel: ObservableObject
     private Core.Server server;
     public ObservableCollection<string> ChatMessages { get; set; }
     public bool AutoResponsesMode { get; set; }
-    private bool isReceivingMessage { get; set; }
+    private bool isDialogEnded { get; set; }
     private string? enteredMessage;
     public string? EnteredMessage
     {
@@ -33,8 +34,11 @@ public class ChatViewModel: ObservableObject
         get => chatPartnerName;
         set
         {
-            chatPartnerName = value;
-            OnPropertyChanged();
+            if(chatPartnerName != value)
+            {
+                chatPartnerName = value;
+                OnPropertyChanged();
+            }     
         }
     }
     private string[] responsesArray;
@@ -68,33 +72,35 @@ public class ChatViewModel: ObservableObject
     public async Task StartServerAsync()
     {
         server.Start();
-        isReceivingMessage = true;
+
         await server.ReceiveAsync();
         ChatPartnerName = $"Chat partner name: Client ({server.ChatPartner})";
     }
 
-    private void HandleMessageReceived(string message)
+
+    private async void HandleMessageReceived(string message)
     {
-        isReceivingMessage = false;
         Application.Current.Dispatcher.Invoke(() => { ChatMessages.Add($"Client: {message}"); });
         if (message.Equals("Bye", StringComparison.OrdinalIgnoreCase))
         {
-            isReceivingMessage = true;
+            isDialogEnded = true;
             server.Dispose();
             return;
         }
         if (AutoResponsesMode)
         {
+            await Task.Delay(2000);
             server.Send(responsesArray[random.Next(responsesArray.Length)]);
         }
+        await server.ReceiveAsync();
     }
     private async void HandleMessageSent(string message)
     {
         Application.Current.Dispatcher.Invoke(() => { ChatMessages.Add($"Me: {message}"); });
         EnteredMessage = string.Empty;
-        isReceivingMessage = true;
         if (message.Equals("Bye", StringComparison.OrdinalIgnoreCase))
-        {
+        {      
+            isDialogEnded = true;
             server.Dispose();
             return;
         } 
@@ -103,12 +109,12 @@ public class ChatViewModel: ObservableObject
 
     private void HandleErrorOccurred(string exceptionMessage)
     {
-        MessageBox.Show(exceptionMessage, "Error", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+        MessageBox.Show(exceptionMessage, "Error (Server)", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
     private bool CanExecuteSendMessageCommand(object param)
     {
-        return !(AutoResponsesMode || string.IsNullOrWhiteSpace(EnteredMessage) || isReceivingMessage);
+        return !(AutoResponsesMode || string.IsNullOrWhiteSpace(EnteredMessage) || isDialogEnded);
     }
     private ICommand? sendMessageCommand;
     public ICommand SendMessageCommand
@@ -117,7 +123,9 @@ public class ChatViewModel: ObservableObject
         {
             return sendMessageCommand ?? (sendMessageCommand = new RelayCommand((action) =>
             {
-                server.Send(string.IsNullOrWhiteSpace(EnteredMessage) ? responsesArray[random.Next(responsesArray.Length)] : EnteredMessage);
+                if (EnteredMessage.Equals("Bye", StringComparison.OrdinalIgnoreCase))
+                    server.CancelAsyncReceiving();
+                server.Send(EnteredMessage!);
             }, CanExecuteSendMessageCommand));
         }
     }

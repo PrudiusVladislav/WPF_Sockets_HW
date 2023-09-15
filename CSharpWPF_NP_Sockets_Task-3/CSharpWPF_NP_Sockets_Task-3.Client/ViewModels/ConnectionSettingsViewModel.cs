@@ -63,9 +63,12 @@ public class ConnectionSettingsViewModel: ObservableObject
     {
         get
         {
-            return connectCommand ?? (connectCommand = new RelayCommand((action) =>
+            return connectCommand ?? (connectCommand = new RelayCommand(async (action) =>
             {
-                mainClientViewModel.CurrentViewModel = new ChatViewModel(autoInputType, IpAddress, int.Parse(Port));
+                
+                var chatViewModel =  new ChatViewModel(autoInputType, IpAddress, int.Parse(Port));
+                mainClientViewModel.CurrentViewModel = chatViewModel;
+                await chatViewModel.ConnectClientAsync();
             }, CanExecuteConnectCommand));
         }
     }
